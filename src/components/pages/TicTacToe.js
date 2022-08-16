@@ -54,19 +54,23 @@ WinnerCard.propTypes = {
 };
 
 const getWinner = tiles => {
-  
   const winConditions = [
     [0,1,2], [3,4,5], [6,7,8], 
     [0,3,6], [1,4,7], [2,5,8], 
-    [3,4,8], [6,4,7]
+    [0,4,8], [2,4,6]
   ]
-  for (let i = 0; i < winConditions.length; i +=1){
 
-    if ((tiles[winConditions[i][0]] && tiles[winConditions[i][1]] && tiles[winConditions[i][2]]) === "X") {
-        return tiles[winConditions[i][0]]
+  for (let i = 0; i < winConditions.length; i +=1){
+    const tileOne = tiles[winConditions[i][0]]
+    const tileTwo = tiles[winConditions[i][1]]
+    const tileThree = tiles[winConditions[i][2]]
+
+    if ((tileOne === "X") && (tileTwo === "X") && (tileThree === "X"))
+      {
+        return tileOne
       } 
-      else if ( (tiles[winConditions[i][0]] && tiles[winConditions[i][1] && tiles[winConditions[i][2]]]) === "O") {
-        return tiles[winConditions[i][0]]
+      else if ( (tileOne === "O") && (tileTwo === "O") && (tileThree === "O")) {
+        return tileOne
       } 
     }
     return null
@@ -80,7 +84,7 @@ const useTicTacToeGameState = initialPlayer => {
   const setTileTo = (tileIndex, player) => {
     if(tiles[tileIndex] === ""){
     setTiles({...tiles, [tileIndex] : player})
-    } else return;
+    } else  return;
   };
 
   const restart = () => {
@@ -90,10 +94,24 @@ const useTicTacToeGameState = initialPlayer => {
   };
 
   useEffect(() =>{
-    getWinner(tiles)
-    winner !== null ? setGameEnded(true) :  setGameEnded(false);
+    getWinner(tiles);
+    let noSelect = 0;
+    let tileValues = Object.values(tiles)
+
+    for(let i = 0; i < tileValues.length; i+=1){
+      if(tileValues[i] !== ""){
+        noSelect += 1;
+      }
+      if (noSelect === 9 && winner === null){
+        return setGameEnded(true)
+      } 
+      if (noSelect < 9){
+        setGameEnded(false)
+      }
+    }
+    winner ? setGameEnded(true) : setGameEnded(false);
     setCurrentPlayer(currentPlayer === "O" ? "X" : "O");
-  }, [tiles])
+  }, [tiles]) 
 
   return { tiles, currentPlayer, winner, gameEnded, setTileTo, restart };
 };
